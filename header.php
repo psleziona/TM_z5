@@ -1,6 +1,7 @@
 <?php declare(strict_types=1);  
 	session_start();
     $isLogged = $_SESSION['loggedin'] ?? false;
+    $user = '';
     if($isLogged) {
         $user = $_SESSION['user'];
         $avatar = $_SESSION['avatar'];
@@ -55,19 +56,23 @@
     </button>
     <div class="collapse navbar-collapse" id="navbarCollapse">
       <ul class="navbar-nav me-auto mb-2 mb-md-0">
-        <li class="nav-item">
-          <a class="nav-link active" aria-current="page" href="index.php">Home</a>
-        </li>
         <?php
         if($isLogged) 
-        echo '<li class="nav-item dropdown">
-          <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-            Komunikator
-          </a>
-          <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-            <li><a class="dropdown-item" href="index1.php">Post</a></li>
-            <li><a class="dropdown-item" href="select.php">Plik</a></li>
-          </ul>
+        echo '<li class="nav-item">
+              <a class="nav-link" href="drive.php">
+                Dysk sieciowy
+              </a>
+        </li>
+        <li class="nav-item">
+              <a class="nav-link" href="index.php">
+                Goście portalu
+              </a>
+        </li>';
+        if($user == 'admin')
+            echo '<li class="nav-item">
+              <a class="nav-link" href="logs.php">
+                Historia błędnych logowań
+              </a>
         </li>';
         ?>
 
@@ -93,3 +98,15 @@
   </div>
 </nav>
 </header>
+<script>
+        document.querySelectorAll("a.nav-link.active").forEach(li => {
+            li.classList.remove("active");
+            li.attributes.removeNamedItem("aria-current");
+        });
+
+        // find the link to the current page and make it active
+        document.querySelectorAll(`a[href="${location.pathname.split('/')[2]}"].nav-link`).forEach(a => {
+            a.classList.add("active");
+            a.setAttribute("aria-current", "page");
+        });
+</script>

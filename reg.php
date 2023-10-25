@@ -2,7 +2,7 @@
 $user = htmlentities ($_POST['user'], ENT_QUOTES, "UTF-8"); 
 $pass = htmlentities ($_POST['pass'], ENT_QUOTES, "UTF-8");
 $pass2 = htmlentities ($_POST['pass2'], ENT_QUOTES, "UTF-8");
- $link = mysqli_connect('mysql01.slezionp.beep.pl', 'slezionap4', 'Kilof123$', 'z4_slezionp'); // połączenie z BD – wpisać swoje dane
+ $link = mysqli_connect('mysql01.slezionp.beep.pl', 'slezionap5', 'Kilof123$', 'z5_slezionp'); // połączenie z BD – wpisać swoje dane
  if(!$link) { echo"Błąd: ". mysqli_connect_errno()." ".mysqli_connect_error(); } // obsługa błędu połączenia z BD
  mysqli_query($link, "SET NAMES 'utf8'"); // ustawienie polskich znaków
 if($pass != $pass2) {

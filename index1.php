@@ -6,7 +6,7 @@ if(!$isLogged) {
     header('Location: login.php');
 }
 
-$dbhost="mysql01.slezionp.beep.pl"; $dbuser="slezionap4"; $dbpassword="Kilof123$"; $dbname="z4_slezionp";
+$dbhost="mysql01.slezionp.beep.pl"; $dbuser="slezionap5"; $dbpassword="Kilof123$"; $dbname="z5_slezionp";
 $connection = mysqli_connect($dbhost, $dbuser, $dbpassword, $dbname);
 if (!$connection)
 {

@@ -41,7 +41,13 @@
           </label>
         </div>
         <button class="w-100 btn btn-lg btn-primary" type="submit">Sign in</button>
-        <p class="mt-5 mb-3 text-muted">&copy; 2017–2021</p>
+          <?php
+            if(isset($_GET['login']) && $_GET['login'] == 'false')
+                echo '<p class="mt-3" style="color: red">Błędny login lub hasło</p>';
+            if(isset($_GET['locked']))
+                echo '<p class="mt-3" style="color: red">Konto zablokowane do: '.$_GET['locked'].'</p>';
+          ?>
+
       </form>
     </main>
 	<?php require_once 'footer.php'; ?>	
@@ -58,7 +64,7 @@
         const lang = navigator.language;
 
 
-        loginForm.action = window.location.origin + `/z4/verify.php?resolution=${res}&browserResolution=${browserRes}&colors=${color}&cookies=${cookies}&aplets=${aplets}&lang=${lang}`;
+        loginForm.action = window.location.origin + `/z5/verify.php?resolution=${res}&browserResolution=${browserRes}&colors=${color}&cookies=${cookies}&aplets=${aplets}&lang=${lang}`;
         loginForm.submit();
     });
 </script>

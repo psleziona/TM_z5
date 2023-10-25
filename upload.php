@@ -29,9 +29,9 @@ else {
     if (move_uploaded_file($_FILES["fileToUpload"]["tmp_name"], $target_file)) {
         echo "The file " . htmlspecialchars(basename($_FILES["fileToUpload"]["name"])) . " has been uploaded.";
         $dbhost = "mysql01.slezionp.beep.pl";
-        $dbuser = "slezionap4";
+        $dbuser = "slezionap5";
         $dbpassword = "Kilof123$";
-        $dbname = "z4_slezionp";
+        $dbname = "z5_slezionp";
         $connection = mysqli_connect($dbhost, $dbuser, $dbpassword, $dbname);
         if (!$connection) {
             echo " MySQL Connection error." . PHP_EOL;

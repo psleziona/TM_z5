@@ -1,9 +1,10 @@
 <?php declare(strict_types=1);
-    session_start();
-    $isLogged = $_SESSION['loggedin'] ?? false;
-    if(!$isLogged) {
-        header('Location: login.php');
+session_start();
+$isLogged = $_SESSION['loggedin'] ?? false;
+if(!$isLogged) {
+    header('Location: login.php');
 }
+$user = $_SESSION['user'];
 function ip_details($ip) {
     $json = file_get_contents ("http://ipinfo.io/{$ip}?token=d1ec7fa4483660");
     $details = json_decode ($json);
@@ -15,10 +16,11 @@ function getBoolString($data) {
 }
 
 
-$link = mysqli_connect('mysql01.slezionp.beep.pl', 'slezionap4', 'Kilof123$', 'z4_slezionp');
+$link = mysqli_connect('mysql01.slezionp.beep.pl', 'slezionap5', 'Kilof123$', 'z5_slezionp');
 if(!$link) { echo"Błąd: ". mysqli_connect_errno()." ".mysqli_connect_error(); } // obsługa błędu połączenia z BD
 
 $result = mysqli_query($link, "select * from goscieportalu order by counter desc");
+
 ?>
 <!DOCTYPE html>
 <html lang="pl">
