@@ -5,51 +5,64 @@ if(!$isLogged) {
     header('Location: login.php');
 }
 
-if(!isset($_GET['path']))
-    header('Location: drive.php?path=');
+if(isset($_GET['delete'])) {
+    $path = $_GET['path'];
+    $endOfParentPath = strrpos($_GET['path'], '/');
+    $parentPath = 'drive.php?path='.str_split($_GET['path'], $endOfParentPath)[0];
+    if(isset($_GET['type']) && $_GET['type'] == 'dir')
+        rmdir($_SESSION['user_dir']."/".$path);
+    else if(isset($_GET['type']) && $_GET['type'] == 'file')
+        unlink($_SESSION['user_dir']."/".$path);
+    header('Location: '.$parentPath);
+} else {
+    if(!isset($_GET['path']))
+        header('Location: drive.php?path=');
 
-$user = $_SESSION['user'];
-$link = mysqli_connect('mysql01.slezionp.beep.pl', 'slezionap5', 'Kilof123$', 'z5_slezionp');
-if(!$link) { echo"Błąd: ". mysqli_connect_errno()." ".mysqli_connect_error(); } // obsługa błędu połączenia z BD
+    $user = $_SESSION['user'];
+    $link = mysqli_connect('mysql01.slezionp.beep.pl', 'slezionap5', 'Kilof123$', 'z5_slezionp');
+    if(!$link) { echo"Błąd: ". mysqli_connect_errno()." ".mysqli_connect_error(); }
 
-$userLoginInformation = mysqli_fetch_array(mysqli_query($link, "SELECT * FROM users WHERE username='$user'"));
-$lastFailedLogin = '';
-if($userLoginInformation['failed_login_attempts'] > 0) {
-    mysqli_query($link, "update users set failed_login_attempts=0, account_locked_until=null where username='$user'");
-    $lastFailedLogin = mysqli_fetch_array(mysqli_query($link, "select * from break_ins where user='$user' order by date desc limit 1"));
+    $userLoginInformation = mysqli_fetch_array(mysqli_query($link, "SELECT * FROM users WHERE username='$user'"));
+    $lastFailedLogin = '';
+    if($userLoginInformation['failed_login_attempts'] > 0) {
+        mysqli_query($link, "update users set failed_login_attempts=0, account_locked_until=null where username='$user'");
+        $lastFailedLogin = mysqli_fetch_array(mysqli_query($link, "select * from break_ins where user='$user' order by date desc limit 1"));
+    }
+
+    $currentDir = $_GET['path'];
+    $files = scandir($_SESSION['user_dir']."/".$currentDir);
+    if(!$files) header('Location: drive.php?path=');
+
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        $dirName = $_POST['name'];
+        mkdir("./user_data/".$user."/".$currentDir."/".$dirName, 0777, TRUE);
+        header("Refresh:0");
+    }
+
+
+    include(getcwd()."/DriverFile.php");
+    $tempArray = array();
+    foreach ($files as $file) {
+        $userDir = $_SESSION['user_dir'];
+        $type = filetype($userDir."/".$currentDir."/".$file);
+        $size = filesize($userDir."/".$currentDir."/".$file);
+        $modified = fileatime($userDir."/".$currentDir."/".$file);
+        $f = new DriverFile($file, $modified, $type, $size,$userDir."/".$currentDir."/".$file);
+        array_push($tempArray, $f);
+    }
+
+    usort($tempArray, function($a,$b) {
+        if($a->name == '..') return -1;
+        if($b->name == '..') return 1;
+        if($a->type == FileType::Dir && $b->type != FileType::Dir)
+            return -1;
+        else if($a->type != FileType::Dir && $b->type == FileType::Dir)
+            return 1;
+        else if(($a->type == FileType::Dir && $b->type == FileType::Dir) || ($a->type != FileType::Dir && $b->type != FileType::Dir)) {
+            return strcmp($a->name, $b->name);
+        }
+    } );
 }
-
-
-$currentDir = $_GET['path'];
-$files = scandir($_SESSION['user_dir']."/".$currentDir);
-if(!$files) header('Location: drive.php');
-
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $dirName = $_POST['name'];
-    mkdir("./user_data/".$user."/".$currentDir."/".$dirName, 0777, TRUE);
-//    header('Location: drive.php?path=');
-    header("Refresh:0");
-}
-function getSizeModifiedTypeOfFile($fileName) {
-    global $currentDir;
-    $userDir = $_SESSION['user_dir'];
-    $fileInfo = (object)array();
-    $fileInfo->type = filetype($userDir."/".$currentDir."/".$fileName);
-    $fileInfo->size = countSize(filesize($userDir."/".$currentDir."/".$fileName));
-    $fileInfo->modified = fileatime($userDir."/".$currentDir."/".$fileName);
-    return $fileInfo;
-}
-
-function countSize($size) {
-    if($size > 1073741824)
-        return round($size/1073741824, 2)." GB";
-    if($size > 1048576)
-        return round($size/1048576, 2)." MB";
-    if($size > 1024)
-        return round($size/1024, 2)." KB";
-
-}
-
 ?>
 <!DOCTYPE html>
 <html lang="pl">
@@ -112,38 +125,28 @@ function countSize($size) {
 <div id='myHeader'> </div>
 <div id="driverNav"">
     <i class="bi bi-folder-plus"></i>
+    <i class="bi bi-cloud-upload"></i>
 </div>
     <main>
         <?php
         if($lastFailedLogin != '')
             echo "<p style='color: red; padding-left: 5px'>Ostatnia nieudana próba logowania miała miejsce: ".$lastFailedLogin['date']." z adresu: ".$lastFailedLogin['ip'];
         ?>
+
         <table class="table">
             <tr>
                 <th>Nazwa</th>
                 <th>Rozmiar</th>
                 <th>Ostatnie zmiany</th>
+                <th></th>
             </tr>
             <?php
-            foreach ($files as $fileName) {
-                $file = getSizeModifiedTypeOfFile($fileName);
-                $icon = $file->type == 'dir' ? '<i class="bi bi-folder"></i>' : '';
-                $link = $file->type == 'dir' ? '<a href="drive.php?'.$_SERVER['QUERY_STRING'].'/'.$fileName.'">'.$icon.' '.$fileName.'</a>' : $icon.' '.$fileName;
-                if($currentDir == '' && ($fileName == '.' || $fileName == '..'))
+            foreach ($tempArray as $f) {
+                if($currentDir == '' && ($f->name == '.' || $f->name == '..'))
                     continue;
-                if($fileName == '.')
+                if($f->name == '.')
                     continue;
-                if($fileName == '..') {
-                    $endOfParentPath = strrpos($_SERVER['QUERY_STRING'], '/');
-                    $parentPath = str_split($_SERVER['QUERY_STRING'], $endOfParentPath)[0];
-                    $link = '<a href="drive.php?'.$parentPath.'">'.$icon.'..</a>';
-                }
-                echo
-                '<tr>
-                    <td>'.$link.'</td>
-                    <td>'.$file->size.'</td>
-                    <td>'.date('Y-m-d H:i:s',$file->modified).'</td>
-                </tr>';
+                echo $f->getFileRow();
             }
             ?>
         </table>
