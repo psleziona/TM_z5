@@ -26,7 +26,8 @@ if($rekord['account_locked_until'] != null && strtotime($rekord['account_locked_
         if($rec != null) {
             $counter = $rec['counter'];
             $counter++;
-            mysqli_query($link, "update goscieportalu set counter=".$counter." where ipaddress='$ip'");
+            $date = date('Y-m-d H:i:s', time());
+            mysqli_query($link, "update goscieportalu set counter=".$counter.", datetime='$date' where ipaddress='$ip'");
         } else {
             include(getcwd()."/Browser/src/Browser.php");
             $browser = new Browser();

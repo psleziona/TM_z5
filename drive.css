@@ -1,0 +1,39 @@
+#driverNav {
+    font-size: 30px;
+    padding: 0 10px;
+}
+
+#driverNav i:hover {
+    color: #007bff;
+    cursor: pointer;
+}
+
+#addDirectory {
+    display: none;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100vh;
+    background-color: #958d8db5;
+}
+
+#newDirectory {
+    width: 700px;
+    margin: 0 auto;
+    position: relative;
+    top: 100px;
+    border-radius: 13px;
+    padding: 40px;
+    background-color: white;
+}
+
+td>a {
+    text-decoration: none;
+    color: black;
+}
+
+.preview-img {
+    max-width: 100px;
+    max-height: 100px;
+}

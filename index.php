@@ -46,7 +46,7 @@ $result = mysqli_query($link, "select * from goscieportalu order by counter desc
 	<main>
         <table class="table">
             <tr>
-                <th>Data</th>
+                <th>Ostatnia wizyta</th>
                 <th>Adres IP</th>
                 <th>Lokalizacja</th>
                 <th>Współrzędne</th>
